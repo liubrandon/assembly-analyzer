@@ -1,8 +1,9 @@
 import argparse
 from collections import defaultdict
-
+ASM_DIR = "./asm/"
+OUTPUT_DIR = "./output/"
 def parseInstructions(fileName, asmText):
-    offset = 21
+    offset = 29
     occurences = defaultdict(int)
     instructions = []
     for line in asmText.splitlines():
@@ -14,7 +15,7 @@ def parseInstructions(fileName, asmText):
         occurences[instr] += 1
     # Output csv of occurences and return list of all instructions
     sum = 0
-    f = open(fileName[:fileName.index(".")] + "_frequency.csv", "w")
+    f = open(OUTPUT_DIR + fileName + "_frequency.csv", "w")
     for e in sorted(occurences, key=occurences.get, reverse=True):
         val = occurences[e]
         sum += val
@@ -31,7 +32,7 @@ def pattern(fileName, seq):
             currPattern = tuple(seq[i:i+length])
             occurences[currPattern] += 1
     # Output csv of occurences and return list of all instructions
-    f = open(fileName[:fileName.index(".")] + "_patterns.csv", "w")
+    f = open(OUTPUT_DIR + fileName + "_patterns.csv", "w")
     for e in sorted(occurences, key=occurences.get, reverse=True):
         if occurences[e] > 3:
             f.write(str(e) + "\n" + str(occurences[e]) + "\n\n")
@@ -41,11 +42,13 @@ def pattern(fileName, seq):
 ap = argparse.ArgumentParser()
 ap.add_argument("-f", "--file", required=True, help="File name of the x86 assembly to analyze.")
 args = vars(ap.parse_args())
-
-f = open(args["file"])
+fileName = args["file"]
+f = open(fileName)
 asmText = f.read()
-allInstr = parseInstructions(args["file"], asmText)
+fileName = fileName.partition(ASM_DIR)[2].split(".")[0]
+print(fileName)
+allInstr = parseInstructions(fileName, asmText)
+patterns = pattern(fileName, allInstr)
 for instr in allInstr:
     print(instr)
-patterns = pattern(args["file"], allInstr)
 
